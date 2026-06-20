@@ -18,7 +18,6 @@ See @docs/data-model.md for the Supabase schema and how each screen pulls from i
 
 ## Commands
 
-<!-- Update these once the project is scaffolded. -->
 - Install: `npm install`
 - Dev server: `npm run dev`
 - Build: `npm run build`
