@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────
+   Xcelerator design tokens
+   All colours, spacing, radius, and type scale
+   defined here as CSS custom properties inside
+   @theme so Tailwind utilities reference them.
+   Never hardcode hex values in components.
+───────────────────────────────────────────── */
+
+@theme {
+  /* ── Core colours ── */
+  --color-ink:            #1B2421;
+  --color-ink-muted:      #5C6B66;
+  --color-teal-900:       #0F3D36;
+  --color-teal-600:       #1F8C72;
+  --color-teal-100:       #E3F1EC;
+  --color-cream:          #FAF6EC;
+  --color-surface:        #FFFFFF;
+  --color-border-neutral: #E4DFD2;
+
+  /* ── Action ── */
+  --color-gold-600: #D9A441;
+  --color-gold-100: #F7E8C9;
+
+  /* ── Status ── */
+  --color-success-600: #3F8F5C;
+  --color-success-100: #E2F0E6;
+  --color-amber-600:   #C97A2E;
+  --color-amber-100:   #F3E4CC;
+  --color-coral-600:   #C85A3D;
+  --color-coral-100:   #F5DDD3;
+
+  /* ── Topic colours (category markers only, never status) ── */
+  --color-topic-algebra:       #1D9E75;
+  --color-topic-algebra-text:  #085041;
+  --color-topic-ratio:         #7F77DD;
+  --color-topic-ratio-text:    #26215C;
+  --color-topic-geometry:      #D85A30;
+  --color-topic-geometry-text: #4A1B0C;
+  --color-topic-number:        #D4537E;
+  --color-topic-number-text:   #4B1528;
+  --color-topic-stats:         #888780;
+  --color-topic-stats-text:    #2C2C2A;
+
+  /* ── Spacing (8px base rhythm) ── */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* ── Border radius ── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-pill: 9999px;
+
+  /* ── Typography scale ── */
+  /* Two weights only: 400 (normal) and 500 (medium). No bold. */
+  --font-sans:  -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  --text-display: 28px;
+  --text-h1:      22px;
+  --text-h2:      18px;
+  --text-h3:      16px;
+  --text-body:    15px;
+  --text-small:   13px;
+  --text-xs:      12px;
+}
+
+/* Base styles */
+
+html, body { height: 100%; }
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Maths-grid background texture — use .math-grid-bg on decorative surfaces */
+.math-grid-bg {
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--color-teal-900) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--color-teal-900) 10%, transparent) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Serif block for real exam questions — never used on app UI copy */
+.exam-question {
+  font-family: var(--font-serif);
+  font-size: var(--text-body);
+  line-height: 1.7;
+}
