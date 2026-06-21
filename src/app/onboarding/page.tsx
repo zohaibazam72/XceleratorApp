@@ -83,15 +83,18 @@ export default function OnboardingPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await browserSupabase.from("student_profiles").insert({
-      user_id: userId,
-      name: name.trim(),
-      target_grade: targetGrade,
-      exam_month: examMonth,
-      exam_year: examYear,
-      exam_board: "AQA",
-      paper_tier: "Higher",
-    });
+    const { error } = await browserSupabase.from("student_profiles").upsert(
+      {
+        user_id: userId,
+        name: name.trim(),
+        target_grade: targetGrade,
+        exam_month: examMonth,
+        exam_year: examYear,
+        exam_board: "AQA",
+        paper_tier: "Higher",
+      },
+      { onConflict: "user_id" }
+    );
 
     if (error) {
       setError(error.message);
