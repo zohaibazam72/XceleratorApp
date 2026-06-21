@@ -1,8 +1,9 @@
 /**
  * Dashboard data-access layer.
  * Aggregates all the data the Dashboard screen needs in a single call.
+ * Accepts the authenticated Supabase client so RLS policies are satisfied.
  */
-import { supabase } from "./client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   SubtopicGroup,
   StudentProfile,
@@ -41,9 +42,13 @@ export interface DashboardData {
   recentActivity: RecentActivityItem[];
 }
 
-export async function getDashboardData(userId: string): Promise<DashboardData> {
+export async function getDashboardData(
+  userId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  client: SupabaseClient<any, any, any>
+): Promise<DashboardData> {
   // ── Student profile ───────────────────────────────────────────────────────
-  const { data: student } = await supabase
+  const { data: student } = await client
     .from("student_profiles")
     .select("*")
     .eq("user_id", userId)
@@ -52,7 +57,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
   const targetGrade: number = student?.target_grade ?? 7;
 
   // ── Patterns (in-scope: grade_level ≤ target grade) ──────────────────────
-  const { data: rawPatterns } = await supabase
+  const { data: rawPatterns } = await client
     .from("subtopic_groups")
     .select("*")
     .lte("grade_level", targetGrade)
@@ -60,7 +65,7 @@ export async function getDashboardData(userId: string): Promise<DashboardData> {
   const patterns: SubtopicGroup[] = rawPatterns ?? [];
 
   // ── Student progress ──────────────────────────────────────────────────────
-  const { data: rawProgress } = await supabase
+  const { data: rawProgress } = await client
     .from("student_pattern_progress")
     .select("*")
     .eq("student_id", userId);

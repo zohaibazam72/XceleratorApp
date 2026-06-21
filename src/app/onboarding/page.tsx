@@ -102,6 +102,8 @@ export default function OnboardingPage() {
       return;
     }
 
+    // Allow session cookie to propagate to the server before navigating
+    await new Promise((resolve) => setTimeout(resolve, 500));
     router.push("/");
     router.refresh();
   }

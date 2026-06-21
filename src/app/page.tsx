@@ -27,7 +27,7 @@ export default async function DashboardPage() {
     upNextPattern,
     currentPatternCompletionPct,
     recentActivity,
-  } = await getDashboardData(user.id);
+  } = await getDashboardData(user.id, supabase);
 
   // First-time user — no profile row yet
   if (!student) redirect("/onboarding");
