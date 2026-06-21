@@ -37,6 +37,9 @@ export interface SubtopicGroup {
   total_questions: number;
   display_order: number;
   created_at: string;
+  learn_explanation: string | null;
+  learn_exam_callout: string | null;
+  learn_common_mistake: string | null;
 }
 
 export interface MarkSchemeStep {
