@@ -1,9 +1,9 @@
 /**
  * Dashboard data-access layer.
  * Aggregates all the data the Dashboard screen needs in a single call.
- * All reads go through the Supabase client — never inline in the page component.
+ * Accepts the authenticated Supabase client so RLS policies are satisfied.
  */
-import { supabase } from "./client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   SubtopicGroup,
   StudentProfile,
@@ -36,28 +36,28 @@ export interface DashboardData {
     not_started: number;
     total: number;
   };
-  /** The pattern the student should work on next */
   currentPattern: SubtopicGroup | null;
-  /** The pattern locked behind the current one */
   upNextPattern: SubtopicGroup | null;
   currentPatternCompletionPct: number;
   recentActivity: RecentActivityItem[];
 }
 
-export async function getDashboardData(): Promise<DashboardData> {
+export async function getDashboardData(
+  userId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  client: SupabaseClient<any, any, any>
+): Promise<DashboardData> {
   // ── Student profile ───────────────────────────────────────────────────────
-  // Auth is wired separately; for MVP we read the single profile row.
-  const { data: student } = await supabase
+  const { data: student } = await client
     .from("student_profiles")
     .select("*")
-    .limit(1)
+    .eq("user_id", userId)
     .maybeSingle();
 
   const targetGrade: number = student?.target_grade ?? 7;
-  const studentId: string | null = student?.user_id ?? null;
 
   // ── Patterns (in-scope: grade_level ≤ target grade) ──────────────────────
-  const { data: rawPatterns } = await supabase
+  const { data: rawPatterns } = await client
     .from("subtopic_groups")
     .select("*")
     .lte("grade_level", targetGrade)
@@ -65,14 +65,11 @@ export async function getDashboardData(): Promise<DashboardData> {
   const patterns: SubtopicGroup[] = rawPatterns ?? [];
 
   // ── Student progress ──────────────────────────────────────────────────────
-  let progressRows: StudentPatternProgress[] = [];
-  if (studentId) {
-    const { data } = await supabase
-      .from("student_pattern_progress")
-      .select("*")
-      .eq("student_id", studentId);
-    progressRows = data ?? [];
-  }
+  const { data: rawProgress } = await client
+    .from("student_pattern_progress")
+    .select("*")
+    .eq("student_id", userId);
+  const progressRows: StudentPatternProgress[] = rawProgress ?? [];
   const progressMap = new Map(progressRows.map((p) => [p.subtopic_group_id, p]));
 
   function statusOf(patternId: string): PatternStatus {
@@ -82,8 +79,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   // ── Current topic: first in priority order with unsecured in-scope patterns
   let currentTopic: Topic = TOPIC_PRIORITY[0];
   for (const topic of TOPIC_PRIORITY) {
-    const topicPatterns = patterns.filter((p) => p.topic === topic);
-    if (topicPatterns.some((p) => statusOf(p.id) !== "secured")) {
+    const tp = patterns.filter((p) => p.topic === topic);
+    if (tp.some((p) => statusOf(p.id) !== "secured")) {
       currentTopic = topic;
       break;
     }
@@ -103,29 +100,19 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   // ── Next pattern to work on ───────────────────────────────────────────────
-  // Priority: in_progress first → not_started → needs_practice
-  const STATUS_PRIORITY: PatternStatus[] = [
-    "in_progress",
-    "not_started",
-    "needs_practice",
-  ];
+  const STATUS_PRIORITY: PatternStatus[] = ["in_progress", "not_started", "needs_practice"];
   let currentPattern: SubtopicGroup | null = null;
   for (const s of STATUS_PRIORITY) {
     const found = topicPatterns.find((p) => statusOf(p.id) === s);
-    if (found) {
-      currentPattern = found;
-      break;
-    }
+    if (found) { currentPattern = found; break; }
   }
 
-  // ── Up-next pattern (next in display_order after current, not yet secured)
+  // ── Up-next pattern ───────────────────────────────────────────────────────
   let upNextPattern: SubtopicGroup | null = null;
   if (currentPattern) {
     const idx = topicPatterns.findIndex((p) => p.id === currentPattern!.id);
     const candidate = topicPatterns[idx + 1] ?? null;
-    if (candidate && statusOf(candidate.id) !== "secured") {
-      upNextPattern = candidate;
-    }
+    if (candidate && statusOf(candidate.id) !== "secured") upNextPattern = candidate;
   }
 
   // ── Completion % for current pattern ─────────────────────────────────────
@@ -134,29 +121,21 @@ export async function getDashboardData(): Promise<DashboardData> {
     const progress = progressMap.get(currentPattern.id);
     const total = currentPattern.total_questions;
     if (progress && total > 0) {
-      currentPatternCompletionPct = Math.min(
-        100,
-        (progress.questions_completed / total) * 100
-      );
+      currentPatternCompletionPct = Math.min(100, (progress.questions_completed / total) * 100);
     }
   }
 
-  // ── Recent activity (from pattern progress status changes) ────────────────
+  // ── Recent activity ───────────────────────────────────────────────────────
   const recentActivity: RecentActivityItem[] = progressRows
     .filter((p) => p.status !== "not_started")
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    )
+    .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
     .slice(0, 3)
     .map((p) => {
       const pattern = patterns.find((pat) => pat.id === p.subtopic_group_id);
       const verb =
-        p.status === "secured"
-          ? "Secured"
-          : p.status === "needs_practice"
-          ? "Needs practice"
-          : "Attempted";
+        p.status === "secured" ? "Secured"
+        : p.status === "needs_practice" ? "Needs practice"
+        : "Attempted";
       const desc = pattern
         ? `${verb}: ${pattern.subtopic}, grade ${pattern.grade_level}`
         : verb;
