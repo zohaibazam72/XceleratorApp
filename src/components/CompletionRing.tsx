@@ -3,13 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 
 interface Props {
-  /** 0-100 */
+  /** 0–100 */
   percent: number;
   /** Diameter in px */
   size?: number;
   strokeWidth?: number;
   /** Animate the ring filling from 0 to percent on mount */
   animate?: boolean;
+  /** Show the percentage as text in the centre of the ring */
+  showLabel?: boolean;
 }
 
 export default function CompletionRing({
@@ -17,6 +19,7 @@ export default function CompletionRing({
   size = 48,
   strokeWidth = 3,
   animate = false,
+  showLabel = false,
 }: Props) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -51,6 +54,10 @@ export default function CompletionRing({
   const offset = circumference - (displayed / 100) * circumference;
   const cx = size / 2;
   const cy = size / 2;
+  const isComplete = percent === 100;
+  const arcColour = isComplete
+    ? "var(--color-success-600)"
+    : "var(--color-teal-600)";
 
   return (
     <svg
@@ -59,7 +66,9 @@ export default function CompletionRing({
       viewBox={`0 0 ${size} ${size}`}
       aria-label={`${Math.round(percent)}% complete`}
       role="img"
+      className="shrink-0"
     >
+      {/* Track */}
       <circle
         cx={cx}
         cy={cy}
@@ -68,18 +77,33 @@ export default function CompletionRing({
         stroke="var(--color-border-neutral)"
         strokeWidth={strokeWidth}
       />
+      {/* Progress arc */}
       <circle
         cx={cx}
         cy={cy}
         r={radius}
         fill="none"
-        stroke={percent === 100 ? "var(--color-success-600)" : "var(--color-teal-600)"}
+        stroke={arcColour}
         strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={offset}
         transform={`rotate(-90 ${cx} ${cy})`}
       />
+      {/* Centre label */}
+      {showLabel && (
+        <text
+          x={cx}
+          y={cy}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={size * 0.22}
+          fontWeight={500}
+          fill={isComplete ? "var(--color-success-600)" : "var(--color-ink)"}
+        >
+          {Math.round(displayed)}%
+        </text>
+      )}
     </svg>
   );
 }
