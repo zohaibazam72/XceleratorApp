@@ -24,6 +24,39 @@ const MONTHS = [
 
 const YEARS = [2025, 2026, 2027];
 
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  height: "44px",
+  padding: "0 16px",
+  borderRadius: "8px",
+  border: "1px solid #E4DFD2",
+  fontSize: "15px",
+  backgroundColor: "#FAF6EC",
+  color: "#1A1A1A",
+  boxSizing: "border-box",
+  outline: "none",
+};
+
+const selectStyle: React.CSSProperties = {
+  ...inputStyle,
+  appearance: "auto",
+};
+
+const buttonStyle: React.CSSProperties = {
+  width: "100%",
+  height: "44px",
+  backgroundColor: "#D9A441",
+  color: "#FFFFFF",
+  borderRadius: "8px",
+  fontWeight: 500,
+  fontSize: "14px",
+  border: "none",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
 export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [targetGrade, setTargetGrade] = useState(7);
@@ -73,13 +106,13 @@ export default function OnboardingPage() {
   return (
     <AuthLayout>
       <div>
-        <h1 className="font-semibold text-ink" style={{ fontSize: "var(--text-h3)" }}>Set up your profile</h1>
-        <p className="text-small text-ink-muted mt-1">This shapes your entire revision path.</p>
+        <h1 style={{ fontWeight: 600, fontSize: "18px", color: "#1A1A1A", margin: 0 }}>Set up your profile</h1>
+        <p style={{ fontSize: "14px", color: "#6B6455", marginTop: "4px" }}>This shapes your entire revision path.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-small font-medium text-ink" htmlFor="name">Your first name</label>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <label style={{ fontSize: "14px", fontWeight: 500, color: "#1A1A1A" }} htmlFor="name">Your first name</label>
           <input
             id="name"
             type="text"
@@ -87,27 +120,19 @@ export default function OnboardingPage() {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="h-11 w-full rounded-md border px-4 text-sm text-ink placeholder:text-ink-muted focus:outline-none"
-            style={{
-              borderColor: "var(--color-border-neutral)",
-              backgroundColor: "var(--color-canvas)",
-            }}
+            style={inputStyle}
             placeholder="e.g. Alex"
           />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-small font-medium text-ink" htmlFor="targetGrade">Target grade</label>
-          <p className="text-xs text-ink-muted">This determines which patterns are in scope for you.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <label style={{ fontSize: "14px", fontWeight: 500, color: "#1A1A1A" }} htmlFor="targetGrade">Target grade</label>
+          <p style={{ fontSize: "13px", color: "#6B6455", margin: 0 }}>This determines which patterns are in scope for you.</p>
           <select
             id="targetGrade"
             value={targetGrade}
             onChange={(e) => setTargetGrade(Number(e.target.value))}
-            className="h-11 w-full rounded-md border px-4 text-sm text-ink focus:outline-none"
-            style={{
-              borderColor: "var(--color-border-neutral)",
-              backgroundColor: "var(--color-canvas)",
-            }}
+            style={selectStyle}
           >
             {GRADES.map((g) => (
               <option key={g} value={g}>
@@ -117,18 +142,14 @@ export default function OnboardingPage() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-small font-medium text-ink">Exam date</label>
-          <p className="text-xs text-ink-muted">AQA Higher exams sit in May/June or November.</p>
-          <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <label style={{ fontSize: "14px", fontWeight: 500, color: "#1A1A1A" }}>Exam date</label>
+          <p style={{ fontSize: "13px", color: "#6B6455", margin: 0 }}>AQA Higher exams sit in May/June or November.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
             <select
               value={examMonth}
               onChange={(e) => setExamMonth(Number(e.target.value))}
-              className="h-11 rounded-md border px-4 text-sm text-ink focus:outline-none"
-              style={{
-                borderColor: "var(--color-border-neutral)",
-                backgroundColor: "var(--color-canvas)",
-              }}
+              style={selectStyle}
               aria-label="Exam month"
             >
               {MONTHS.map((m) => (
@@ -138,11 +159,7 @@ export default function OnboardingPage() {
             <select
               value={examYear}
               onChange={(e) => setExamYear(Number(e.target.value))}
-              className="h-11 rounded-md border px-4 text-sm text-ink focus:outline-none"
-              style={{
-                borderColor: "var(--color-border-neutral)",
-                backgroundColor: "var(--color-canvas)",
-              }}
+              style={selectStyle}
               aria-label="Exam year"
             >
               {YEARS.map((y) => (
@@ -153,13 +170,7 @@ export default function OnboardingPage() {
         </div>
 
         {error && (
-          <p
-            className="text-small rounded-md px-4 py-2"
-            style={{
-              backgroundColor: "var(--color-coral-100)",
-              color: "var(--color-coral-600)",
-            }}
-          >
+          <p style={{ fontSize: "14px", borderRadius: "8px", padding: "8px 12px", backgroundColor: "#FDE8E8", color: "#C0392B", margin: 0 }}>
             {error}
           </p>
         )}
@@ -167,8 +178,7 @@ export default function OnboardingPage() {
         <button
           type="submit"
           disabled={loading || !userId}
-          className="h-11 w-full flex items-center justify-center rounded-md text-sm font-medium text-ink transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: "var(--color-gold-600)" }}
+          style={{ ...buttonStyle, opacity: loading || !userId ? 0.6 : 1 }}
         >
           {loading ? "Saving…" : "Start my revision path"}
         </button>
