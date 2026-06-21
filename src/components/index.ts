@@ -4,6 +4,7 @@ export { default as GradeBandDivider } from "./GradeBandDivider";
 export { default as GradeTrajectoryChart } from "./GradeTrajectoryChart";
 export { default as MarkBadge } from "./MarkBadge";
 export { default as MetricCard } from "./MetricCard";
+export { default as NavLinks } from "./NavLinks";
 export { default as PatternHeroCard } from "./PatternHeroCard";
 export { default as PatternListRow } from "./PatternListRow";
 export { default as PatternStepper } from "./PatternStepper";

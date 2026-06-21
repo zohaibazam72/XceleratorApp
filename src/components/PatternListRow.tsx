@@ -1,5 +1,4 @@
-"use client";
-
+import Link from "next/link";
 import type { PatternStatus } from "@/types/database";
 import StatusBadge from "./StatusBadge";
 
@@ -9,7 +8,8 @@ interface Props {
   maxMarks: number | null;
   status: PatternStatus;
   justSecured?: boolean;
-  onClick?: () => void;
+  /** If provided, wraps the row in a Link */
+  href?: string;
 }
 
 function StatusIcon({ status }: { status: PatternStatus }) {
@@ -44,24 +44,14 @@ function StatusIcon({ status }: { status: PatternStatus }) {
   );
 }
 
-export default function PatternListRow({
+function RowContent({
   patternName,
   frequencyPct,
   maxMarks,
   status,
-  justSecured = false,
-  onClick,
-}: Props) {
-  const isNotStarted = status === "not_started";
-
+}: Pick<Props, "patternName" | "frequencyPct" | "maxMarks" | "status">) {
   return (
-    <button
-      onClick={onClick}
-      className={`flex w-full items-center gap-md rounded-md px-md py-sm text-left transition-colors hover:bg-teal-100
-        ${justSecured ? "bg-teal-100" : ""}
-        ${isNotStarted ? "opacity-50" : ""}
-      `}
-    >
+    <>
       <div className="shrink-0">
         <StatusIcon status={status} />
       </div>
@@ -80,6 +70,49 @@ export default function PatternListRow({
       <div className="shrink-0">
         <StatusBadge status={status} />
       </div>
-    </button>
+    </>
+  );
+}
+
+export default function PatternListRow({
+  patternName,
+  frequencyPct,
+  maxMarks,
+  status,
+  justSecured = false,
+  href,
+}: Props) {
+  const isNotStarted = status === "not_started";
+  const className = [
+    "flex w-full items-center gap-md rounded-md px-md py-sm text-left transition-colors",
+    href ? "hover:bg-teal-100" : "",
+    justSecured ? "bg-teal-100" : "",
+    isNotStarted ? "opacity-50" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        <RowContent
+          patternName={patternName}
+          frequencyPct={frequencyPct}
+          maxMarks={maxMarks}
+          status={status}
+        />
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className}>
+      <RowContent
+        patternName={patternName}
+        frequencyPct={frequencyPct}
+        maxMarks={maxMarks}
+        status={status}
+      />
+    </div>
   );
 }
