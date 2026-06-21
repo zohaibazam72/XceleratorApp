@@ -61,7 +61,8 @@ export async function getDashboardData(
     .from("subtopic_groups")
     .select("*")
     .lte("grade_level", targetGrade)
-    .order("display_order");
+    .order("grade_level", { ascending: true })
+    .order("aqa_frequency_pct", { ascending: false });
   const patterns: SubtopicGroup[] = rawPatterns ?? [];
 
   // ── Student progress ──────────────────────────────────────────────────────
