@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDashboardData } from "@/lib/supabase/dashboard";
 import {
   MetricCard,
@@ -10,6 +12,13 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/signin");
+
   const {
     student,
     currentTopic,
@@ -18,11 +27,14 @@ export default async function DashboardPage() {
     upNextPattern,
     currentPatternCompletionPct,
     recentActivity,
-  } = await getDashboardData();
+  } = await getDashboardData(user.id);
 
-  const firstName = student?.name?.split(" ")[0] ?? "there";
-  const targetGrade = student?.target_grade ?? 7;
-  const currentGrade = student?.current_grade ?? null;
+  // First-time user — no profile row yet
+  if (!student) redirect("/onboarding");
+
+  const firstName = student.name.split(" ")[0];
+  const targetGrade = student.target_grade;
+  const currentGrade = student.current_grade;
 
   return (
     <div className="max-w-2xl mx-auto px-md py-lg flex flex-col gap-xl">
@@ -35,24 +47,17 @@ export default async function DashboardPage() {
           </h1>
           <p className="text-small text-ink-muted">Keep going — every pattern counts.</p>
 
-          {/* Grade pills */}
           <div className="flex items-center gap-sm mt-sm flex-wrap">
             <span
               className="rounded-pill px-sm py-xs text-xs font-medium"
-              style={{
-                backgroundColor: "var(--color-teal-100)",
-                color: "var(--color-teal-900)",
-              }}
+              style={{ backgroundColor: "var(--color-teal-100)", color: "var(--color-teal-900)" }}
             >
               Target grade {targetGrade}
             </span>
             {currentGrade !== null && (
               <span
                 className="rounded-pill px-sm py-xs text-xs font-medium"
-                style={{
-                  backgroundColor: "var(--color-surface-alt)",
-                  color: "var(--color-ink-muted)",
-                }}
+                style={{ backgroundColor: "var(--color-surface-alt)", color: "var(--color-ink-muted)" }}
               >
                 Grade {currentGrade} · last confirmed mock result
               </span>
@@ -67,9 +72,7 @@ export default async function DashboardPage() {
         >
           <span className="text-2xl leading-none">🔥</span>
           <span className="text-xs font-medium text-ink-muted">Streak</span>
-          <span className="font-semibold text-ink" style={{ fontSize: "var(--text-h3)" }}>
-            —
-          </span>
+          <span className="font-semibold text-ink" style={{ fontSize: "var(--text-h3)" }}>—</span>
         </div>
       </section>
 
@@ -115,7 +118,6 @@ export default async function DashboardPage() {
 
       {/* ── Up-next + quick actions ──────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
-        {/* Up-next locked card */}
         <div className="flex flex-col gap-sm">
           <p className="text-xs font-medium tracking-widest text-ink-muted uppercase">Up next</p>
           {upNextPattern ? (
@@ -130,7 +132,6 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Quick actions */}
         <div className="flex flex-col gap-sm">
           <p className="text-xs font-medium tracking-widest text-ink-muted uppercase">Quick actions</p>
           <div className="flex flex-col gap-xs">

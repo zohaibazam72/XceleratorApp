@@ -28,8 +28,8 @@ export default function TopicPriorityBar({ currentTopic, onWhyClick }: Props) {
         )}
       </div>
 
-      <div className="relative">
-        {/* You are here marker */}
+      {/* pt-6 reserves space above the bar for the "You are here" label */}
+      <div className="relative pt-6">
         {SEGMENTS.map((seg, i) => {
           if (seg.topic !== currentTopic) return null;
           const leftPct = SEGMENTS.slice(0, i).reduce((acc, s) => acc + s.pct, 0);
@@ -37,10 +37,13 @@ export default function TopicPriorityBar({ currentTopic, onWhyClick }: Props) {
           return (
             <div
               key="marker"
-              className="absolute -top-5 flex flex-col items-center"
+              className="absolute top-0 flex flex-col items-center gap-px"
               style={{ left: `${midPct}%`, transform: "translateX(-50%)" }}
             >
-              <span className="text-xs text-ink-muted whitespace-nowrap">You are here</span>
+              <span className="text-xs text-ink-muted whitespace-nowrap leading-none">You are here</span>
+              <svg width="8" height="5" viewBox="0 0 8 5" fill="none" aria-hidden>
+                <path d="M4 5L0 0h8L4 5z" fill="var(--color-ink-muted)" />
+              </svg>
             </div>
           );
         })}
