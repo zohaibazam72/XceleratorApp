@@ -101,8 +101,7 @@ export default async function DashboardPage() {
           patternName={currentPattern.subtopic}
           gradeLevel={currentPattern.grade_level}
           topic={currentTopic}
-          frequencyPct={currentPattern.frequency_pct}
-          maxMarks={currentPattern.max_marks}
+          frequencyPct={currentPattern.aqa_frequency_pct}
           questionCount={currentPattern.total_questions}
           completionPercent={currentPatternCompletionPct}
           href={`/learn/${currentPattern.id}`}
@@ -122,8 +121,8 @@ export default async function DashboardPage() {
           {upNextPattern ? (
             <PatternListRow
               patternName={upNextPattern.subtopic}
-              frequencyPct={upNextPattern.frequency_pct}
-              maxMarks={upNextPattern.max_marks}
+              frequencyPct={upNextPattern.aqa_frequency_pct}
+              maxMarks={null}
               status="not_started"
             />
           ) : (
