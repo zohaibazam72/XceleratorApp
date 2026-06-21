@@ -20,7 +20,7 @@ export default async function DashboardPage() {
     recentActivity,
   } = await getDashboardData();
 
-  const firstName = student?.full_name?.split(" ")[0] ?? "there";
+  const firstName = student?.name?.split(" ")[0] ?? "there";
   const targetGrade = student?.target_grade ?? 7;
   const currentGrade = student?.current_grade ?? null;
 
