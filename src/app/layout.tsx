@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-full bg-canvas">
+      <body className="min-h-screen w-full bg-canvas">
         <AppShell>{children}</AppShell>
       </body>
     </html>
